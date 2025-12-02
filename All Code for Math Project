@@ -5,6 +5,7 @@ Plot[
  PlotRange -> All,
   PlotLabel -> "Leguerre Polynomials",
  PlotLegends -> Table["L" <> ToString[n], {n, 0, 5}],
+ FrameLabel -> {"x", "Laguerre L_n(x)"},
  PlotTheme -> "Scientific"
 ]
 
@@ -17,6 +18,7 @@ Plot[
  PlotRange -> All,
   PlotLabel -> "Weighted Laguerre Functions",
  PlotLegends -> Table["L" <> ToString[n], {n, 0, 5}],
+FrameLabel -> {"x", "Weighted Laguerre L_n(x)"},
  PlotTheme -> "Scientific"
 ]
 
@@ -33,6 +35,7 @@ comparisonPlot =
      PlotRange -> All,
      PlotLegends -> Table["L[L" <> ToString[n] <> "]", {n, 0, 3}],
      PlotLabel -> "Sturm\[Dash]Liouville Operator L[L_n]",
+     FrameLabel -> {"x", "Laguerre Operator L[L_n(x)]"},
      PlotTheme -> "Scientific",
      ImageSize -> 350
    ],
@@ -42,6 +45,7 @@ comparisonPlot =
      PlotRange -> All,
      PlotLegends -> Table["-n L_n", {n, 0, 3}],
      PlotLabel -> "-n L_n(x)",
+     FrameLabel -> {"x", "Laguerre Operator -n*L_n(x)"},
      PlotTheme -> "Scientific",
      ImageSize -> 350
    ]
@@ -62,6 +66,7 @@ combinedPlot = Plot[
     {n, 0, 3}
   ],
   PlotLabel -> "Comparison: L[L_n] vs -n L_n",
+  FrameLabel -> {"x", "Laguerre Operator"},
   PlotTheme -> "Scientific",
   ImageSize -> 500
 ]
@@ -90,6 +95,7 @@ plotComparison = GraphicsRow[{
    PlotLabel -> Style["Radial Wavefunctions", 14, Bold],
    PlotLegends -> {"R₂₁(r)", "R₃₀(r)", "R₄₀(r)"},
    AxesLabel -> {"r/a₀", "Rₙₗ(r)"},
+   FrameLabel -> {"Radial Distance (r)", "Radial Wave Function R(r)"},
    PlotTheme -> "Scientific",
    ImageSize -> 400,
    Epilog -> {
@@ -108,6 +114,7 @@ plotComparison = GraphicsRow[{
    PlotLabel -> Style["Radial Probability Density", 14, Bold],
    PlotLegends -> {"r\.b2|R₂₁|\.b2", "r\.b2|R₃₀|\.b2", "r\.b2|R₄₀|\.b2"},
    AxesLabel -> {"r/a₀", "P(r)"},
+   FrameLabel -> {"Radial Distance (r)", "Radial Wave Function R(r)"},
    PlotTheme -> "Scientific",
    ImageSize -> 400
   ]
@@ -160,6 +167,7 @@ plotRadial = Plot[
     Style["R\!\(\*SubscriptBox[\(nl\), \(\)]\)(r)", 14]},
   GridLines -> Automatic,
   GridLinesStyle -> Directive[Gray, Dashed, Opacity[0.3]],
+  FrameLabel -> {"Radial Distance (r)", "Radial Wave Function R(r)"},
   PlotTheme -> "Scientific",
   ImageSize -> 700,
   Epilog -> {
@@ -195,6 +203,7 @@ Plot[
   PlotLabel -> "Laguerre-Gaussian Beam Radial Profiles (\[ScriptL]=0)",
   PlotLegends -> Table["LG_" <> ToString[p] <> "0", {p, 0, 3}],
   AxesLabel -> {"r/w₀", "Intensity (a.u.)"},
+  FrameLabel -> {"x", "Laguerre-Gaussian Beam Profiles"},
   PlotTheme -> "Scientific"
 ]
 
