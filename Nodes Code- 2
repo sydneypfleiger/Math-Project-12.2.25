@@ -1,0 +1,75 @@
+
+a0 = 1;
+normalizationConstant[n_, l_] := 
+  Sqrt[(2/(n*a0))^3 * Factorial[n - l - 1]/(2*n*Factorial[n + l])];
+
+
+radialWavefunction[n_, l_, r_] := 
+  normalizationConstant[n, l] *
+  (2*r/(n*a0))^l *
+  Exp[-r/(n*a0)] *
+  LaguerreL[n - l - 1, 2*l + 1, 2*r/(n*a0)];
+
+
+
+
+R21[r_] := radialWavefunction[2, 1, r];
+R30[r_] := radialWavefunction[3, 0, r];
+R40[r_] := radialWavefunction[4, 0, r];
+
+
+
+nodesR30 = r /. NSolve[R30[r] == 0 && 0 < r < 25, r];
+nodesR40 = r /. NSolve[R40[r] == 0 && 0 < r < 25, r];
+
+Print["Nodes of R_30(r): ", nodesR30];
+Print["Nodes of R_40(r): ", nodesR40];
+
+
+plotRadial = Plot[
+  {R21[r], R30[r], R40[r]},
+  {r, 0, 25},
+  PlotRange -> All,
+  PlotStyle -> {
+    {Blue, Thick},
+    {Red, Thick},
+    {Green, Thick}
+  },
+  PlotLabel -> 
+   Style["Hydrogen Atom Radial Wavefunctions", 16, Bold],
+  PlotLegends -> 
+   Placed[
+    LineLegend[
+     {Style["R\!\(\*SubscriptBox[\(21\), \(\)]\)(r)  [n=2, l=1, nodes=0]", 13],
+      Style["R\!\(\*SubscriptBox[\(30\), \(\)]\)(r)  [n=3, l=0, nodes=2]", 13],
+      Style["R\!\(\*SubscriptBox[\(40\), \(\)]\)(r)  [n=4, l=0, nodes=3]", 13]},
+     LegendFunction -> "Panel"
+    ],
+    {Right, Top}
+   ],
+  AxesLabel -> {Style["r/a\!\(\*SubscriptBox[\(0\), \(\)]\)", 14], 
+    Style["R\!\(\*SubscriptBox[\(nl\), \(\)]\)(r)", 14]},
+  GridLines -> Automatic,
+  GridLinesStyle -> Directive[Gray, Dashed, Opacity[0.3]],
+  PlotTheme -> "Scientific",
+  ImageSize -> 700,
+  Epilog -> {
+    (* Mark the nodes of R_30 with red points *)
+    Red, PointSize[0.02],
+    Point[Table[{nodesR30[[i]], 0}, {i, Length[nodesR30]}]],
+    (* Add vertical dashed lines at R_30 nodes *)
+    Red, Dashed,
+    Table[Line[{{nodesR30[[i]], -0.1}, {nodesR30[[i]], 0.1}}], {i, 
+      Length[nodesR30]}],
+    (* Mark the nodes of R_40 with green points *)
+    Green, PointSize[0.02],
+    Point[Table[{nodesR40[[i]], 0}, {i, Length[nodesR40]}]],
+    (* Add vertical dashed lines at R_40 nodes *)
+    Green, Dashed,
+    Table[Line[{{nodesR40[[i]], -0.1}, {nodesR40[[i]], 0.1}}], {i, 
+      Length[nodesR40]}]
+  }
+];
+
+Print["Figure: Radial Wavefunctions R_21, R_30, and R_40"];
+plotRadial
