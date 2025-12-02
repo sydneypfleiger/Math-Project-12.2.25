@@ -1,0 +1,215 @@
+#PLOT FOR LAGUERRE POLYNOMIALS:
+Plot[
+ Evaluate@Table[LaguerreL[n, x], {n, 0, 5}],
+ {x, 0, 10},
+ PlotRange -> All,
+  PlotLabel -> "Leguerre Polynomials",
+ PlotLegends -> Table["L" <> ToString[n], {n, 0, 5}],
+ PlotTheme -> "Scientific"
+]
+
+
+#PLOT FOR WEIGHTED LAGUERRE POLYNOMIALS:
+weightedLaguerre[n_, x_] := Exp[-x/2] * LaguerreL[n, x]
+Plot[
+ Evaluate@Table[weightedLaguerre[n, x], {n, 0, 5}],
+ {x, 0, 25},
+ PlotRange -> All,
+  PlotLabel -> "Weighted Laguerre Functions",
+ PlotLegends -> Table["L" <> ToString[n], {n, 0, 5}],
+ PlotTheme -> "Scientific"
+]
+
+
+#LAGUERRE OPERATOR GRAPH COMBINED
+laguerreSL[y_, x_] := x*D[y, {x, 2}] + (1 - x)*D[y, x];
+laguerreOperator[n_, x_] := laguerreSL[LaguerreL[n, x], x];
+laguerreTheory[n_, x_] := -n*LaguerreL[n, x];
+comparisonPlot =
+ Row[{
+   Plot[
+     Evaluate@Table[laguerreOperator[n, x], {n, 0, 3}],
+     {x, 0, 15},
+     PlotRange -> All,
+     PlotLegends -> Table["L[L" <> ToString[n] <> "]", {n, 0, 3}],
+     PlotLabel -> "Sturm\[Dash]Liouville Operator L[L_n]",
+     PlotTheme -> "Scientific",
+     ImageSize -> 350
+   ],
+   Plot[
+     Evaluate@Table[laguerreTheory[n, x], {n, 0, 3}],
+     {x, 0, 15},
+     PlotRange -> All,
+     PlotLegends -> Table["-n L_n", {n, 0, 3}],
+     PlotLabel -> "-n L_n(x)",
+     PlotTheme -> "Scientific",
+     ImageSize -> 350
+   ]
+ }]
+combinedPlot = Plot[
+  Evaluate@Flatten@Table[
+    {laguerreOperator[n, x], laguerreTheory[n, x]}, 
+    {n, 0, 3}
+  ],
+  {x, 0, 15},
+  PlotRange -> All,
+  PlotStyle -> Flatten@Table[
+    {Directive[Dashed, Thick], Directive[Automatic, Thickness[0.003]]}, 
+    {n, 0, 3}
+  ],
+  PlotLegends -> Flatten@Table[
+    {"L[L" <> ToString[n] <> "]", "-" <> ToString[n] <> " L_n"}, 
+    {n, 0, 3}
+  ],
+  PlotLabel -> "Comparison: L[L_n] vs -n L_n",
+  PlotTheme -> "Scientific",
+  ImageSize -> 500
+]
+
+
+#RADIAL WAVEFUNCTIONS AND RADIAL PROBABILITY
+R21[r_] := 1/(2*Sqrt[6]) * r * Exp[-r/2]
+R30[r_] := 2/(81*Sqrt[3]) * (27 - 18*r + 2*r^2) * Exp[-r/3]
+R40[r_] := 1/(768) * r * (20 - r) * Exp[-r/4]
+ 
+radialWavefunction[2, 1, r_] := R21[r]
+radialWavefunction[3, 0, r_] := R30[r]
+radialWavefunction[4, 0, r_] := R40[r]
+
+probabilityDensity[n_, l_, r_] := r^2 * radialWavefunction[n, l, r]^2
+
+nodesR30 = r /. NSolve[R30[r] == 0 && 0 < r < 25, r, Reals]
+nodesR40 = r /. NSolve[R40[r] == 0 && 0 < r < 25, r, Reals]
+
+plotComparison = GraphicsRow[{
+  Plot[
+   {R21[r], R30[r], R40[r]},
+   {r, 0, 25},
+   PlotRange -> All,
+   PlotStyle -> {{Blue, Thick}, {Red, Thick}, {Green, Thick}},
+   PlotLabel -> Style["Radial Wavefunctions", 14, Bold],
+   PlotLegends -> {"R₂₁(r)", "R₃₀(r)", "R₄₀(r)"},
+   AxesLabel -> {"r/a₀", "Rₙₗ(r)"},
+   PlotTheme -> "Scientific",
+   ImageSize -> 400,
+   Epilog -> {
+     Red, PointSize[0.015],
+     Point[Table[{nodesR30[[i]], 0}, {i, Length[nodesR30]}]],
+     Green, PointSize[0.015],
+     Point[Table[{nodesR40[[i]], 0}, {i, Length[nodesR40]}]]
+   }
+  ],
+  Plot[
+   {probabilityDensity[2, 1, r], probabilityDensity[3, 0, r],
+    probabilityDensity[4, 0, r]},
+   {r, 0, 25},
+   PlotRange -> All,
+   PlotStyle -> {{Blue, Thick}, {Red, Thick}, {Green, Thick}},
+   PlotLabel -> Style["Radial Probability Density", 14, Bold],
+   PlotLegends -> {"r\.b2|R₂₁|\.b2", "r\.b2|R₃₀|\.b2", "r\.b2|R₄₀|\.b2"},
+   AxesLabel -> {"r/a₀", "P(r)"},
+   PlotTheme -> "Scientific",
+   ImageSize -> 400
+  ]
+}, Spacings -> 20]
+
+
+#RADIAL NODES PLOT
+a0 = 1;
+normalizationConstant[n_, l_] := 
+  Sqrt[(2/(n*a0))^3 * Factorial[n - l - 1]/(2*n*Factorial[n + l])];
+
+radialWavefunction[n_, l_, r_] := 
+  normalizationConstant[n, l] *
+  (2*r/(n*a0))^l *
+  Exp[-r/(n*a0)] *
+  LaguerreL[n - l - 1, 2*l + 1, 2*r/(n*a0)];
+
+R21[r_] := radialWavefunction[2, 1, r];
+R30[r_] := radialWavefunction[3, 0, r];
+R40[r_] := radialWavefunction[4, 0, r];
+
+nodesR30 = r /. NSolve[R30[r] == 0 && 0 < r < 25, r];
+nodesR40 = r /. NSolve[R40[r] == 0 && 0 < r < 25, r];
+
+Print["Nodes of R_30(r): ", nodesR30];
+Print["Nodes of R_40(r): ", nodesR40];
+
+plotRadial = Plot[
+  {R21[r], R30[r], R40[r]},
+  {r, 0, 25},
+  PlotRange -> All,
+  PlotStyle -> {
+    {Blue, Thick},
+    {Red, Thick},
+    {Green, Thick}
+  },
+  PlotLabel -> 
+   Style["Hydrogen Atom Radial Wavefunctions", 16, Bold],
+  PlotLegends -> 
+   Placed[
+    LineLegend[
+     {Style["R\!\(\*SubscriptBox[\(21\), \(\)]\)(r)  [n=2, l=1, nodes=0]", 13],
+      Style["R\!\(\*SubscriptBox[\(30\), \(\)]\)(r)  [n=3, l=0, nodes=2]", 13],
+      Style["R\!\(\*SubscriptBox[\(40\), \(\)]\)(r)  [n=4, l=0, nodes=3]", 13]},
+     LegendFunction -> "Panel"
+    ],
+    {Right, Top}
+   ],
+  AxesLabel -> {Style["r/a\!\(\*SubscriptBox[\(0\), \(\)]\)", 14], 
+    Style["R\!\(\*SubscriptBox[\(nl\), \(\)]\)(r)", 14]},
+  GridLines -> Automatic,
+  GridLinesStyle -> Directive[Gray, Dashed, Opacity[0.3]],
+  PlotTheme -> "Scientific",
+  ImageSize -> 700,
+  Epilog -> {
+    (* Mark the nodes of R_30 with red points *)
+    Red, PointSize[0.02],
+    Point[Table[{nodesR30[[i]], 0}, {i, Length[nodesR30]}]],
+    (* Add vertical dashed lines at R_30 nodes *)
+    Red, Dashed,
+    Table[Line[{{nodesR30[[i]], -0.1}, {nodesR30[[i]], 0.1}}], {i, 
+      Length[nodesR30]}],
+    (* Mark the nodes of R_40 with green points *)
+    Green, PointSize[0.02],
+    Point[Table[{nodesR40[[i]], 0}, {i, Length[nodesR40]}]],
+    (* Add vertical dashed lines at R_40 nodes *)
+    Green, Dashed,
+    Table[Line[{{nodesR40[[i]], -0.1}, {nodesR40[[i]], 0.1}}], {i, 
+      Length[nodesR40]}]
+  }
+];
+Print["Figure: Radial Wavefunctions R_21, R_30, and R_40"];
+plotRadial
+
+
+#LAGUERRE GAUSSIAN BEAM AND 3D PLOT
+w0 = 1;
+laguerreGaussianIntensity[p_, l_, r_] := 
+  (LaguerreL[p, Abs[l], 2*r^2/w0^2])^2 * Exp[-2*r^2/w0^2]
+
+Plot[
+  Evaluate@Table[laguerreGaussianIntensity[p, 0, r], {p, 0, 3}],
+  {r, 0, 3},
+  PlotRange -> All,
+  PlotLabel -> "Laguerre-Gaussian Beam Radial Profiles (\[ScriptL]=0)",
+  PlotLegends -> Table["LG_" <> ToString[p] <> "0", {p, 0, 3}],
+  AxesLabel -> {"r/w₀", "Intensity (a.u.)"},
+  PlotTheme -> "Scientific"
+]
+
+lgBeamPlots = Table[
+  DensityPlot[
+    laguerreGaussianIntensity[p, 0, Sqrt[x^2 + y^2]],
+    {x, -3, 3}, {y, -3, 3},
+    ColorFunction -> "SunsetColors",
+    PlotLabel -> "LG_" <> ToString[p] <> "0 mode",
+    PlotLegends -> Automatic,
+    FrameLabel -> {"x/w₀", "y/w₀"},
+    ImageSize -> 300
+  ],
+  {p, 0, 3}
+];
+
+GraphicsGrid[Partition[lgBeamPlots, 2], Spacings -> 20]
+
